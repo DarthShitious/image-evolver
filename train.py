@@ -22,17 +22,18 @@ if __name__ == "__main__":
     num_epochs = 2000000
     analyze_every = 100
     shrink_scale = 16
-    learning_rate = 2e-3
+    learning_rate = 0.005
 
-    spatial_depth = 16
-    scale_depth = 16
+    spatial_depth = 8
+    scale_depth = 32
 
     # Time stamp for results directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_dir = os.path.join(os.getcwd(), "trained", timestamp)
     recons_dir = os.path.join(results_dir, "recons")
     hists_dir = os.path.join(results_dir, "hists")
-    for p in [results_dir, recons_dir, hists_dir]:
+    slices_dir = os.path.join(results_dir, "slices")
+    for p in [results_dir, recons_dir, hists_dir, slices_dir]:
         os.makedirs(p, exist_ok=True)
 
     # Get device (GPU or CPU)
@@ -107,7 +108,16 @@ if __name__ == "__main__":
                 img2=target[0].detach().cpu().numpy(),
                 labels=["Recon", "Target"],
                 percentile=99.9,
-                path=os.path.join(hists_dir, f"trained_hists_{epoch:05d}.png"))
+                path=os.path.join(hists_dir, f"trained_hists_{epoch:05d}.png")
+            )
+            
+            # Plot Slice
+            plot_slice(
+                img1=recon[0].detach().cpu().numpy(),
+                img2=target[0].detach().cpu().numpy(),
+                labels=["Recon", "Target"],
+                path=os.path.join(slices_dir, f"trained_slice_{epoch:05d}.png")
+            )
 
         if epoch % (10 * analyze_every) == 0 or epoch == num_epochs:
             # Make videos

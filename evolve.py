@@ -23,23 +23,24 @@ def fitness(coeffs, target):
 if __name__ == "__main__":
 
     # Configuration
-    pop_size    = 64
-    parent_k    = 32
-    num_elites  = 4
+    pop_size    = 128
+    parent_k    = 64
+    num_elites  = 2
     generations = 2000000
-    mut_rate    = 0.1
-    mut_scale   = 0.2
-    analyze_every = 100
+    mut_rate    = 0.05
+    mut_scale   = 0.1
+    analyze_every = 10
     shrink_scale = 16
     spatial_depth = 8
-    scale_depth = 24
+    scale_depth = 32
 
     # Time stamp for results directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_dir = os.path.join(os.getcwd(), "evolved", timestamp)
     recons_dir = os.path.join(results_dir, "recons")
     hists_dir = os.path.join(results_dir, "hists")
-    for p in [results_dir, recons_dir, hists_dir]:
+    slices_dir = os.path.join(results_dir, "slices")
+    for p in [results_dir, recons_dir, hists_dir, slices_dir]:
         os.makedirs(p, exist_ok=True)
 
     checkpoint_loadpath = None
@@ -103,7 +104,7 @@ if __name__ == "__main__":
             print(f"Gen {gen}/{generations}  Best MSE: {best_mse:.6f}")
 
             # Decrease mutation scale
-            mut_scale = max(0.005, mut_scale * 0.99)
+            mut_scale = max(0.005, mut_scale * 0.999)
             print(f"Mutation scale: {mut_scale:.4f}")
 
             with torch.no_grad():
@@ -134,6 +135,14 @@ if __name__ == "__main__":
                 labels=["Recon", "Target"],
                 percentile=99.9,
                 path=os.path.join(hists_dir, f"evolved_hists_{gen:05d}.png")
+            )
+
+            # Plot Slice
+            plot_slice(
+                img1=recon.transpose(2, 0, 1),
+                img2=target[0].cpu().numpy(),
+                labels=["Recon", "Target"],
+                path=os.path.join(slices_dir, f"evolved_slice_{gen:05d}.png")
             )
 
             # Save Checkpoint

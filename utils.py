@@ -100,51 +100,22 @@ def compare_rgb_hist(img1, img2, bins=256, labels=('Image 1', 'Image 2'),
     plt.close(fig)
 
 
-# def compare_rgb_hist(img1, img2, bins=256, labels=('Image 1','Image 2'), path=""):
-#     """
-#     Plot overlaid RGB histograms of two images.
+def plot_slice(
+        img1:np.ndarray,
+        img2:np.ndarray,
+        labels=('recon', 'target'),
+        path:str=""
+    ):
 
-#     Parameters
-#     ----------
-#     img1, img2 : array-like
-#         Images in shape (3, H, W) or (H, W, 3), values in [0..255] or [0..1].
-#     bins : int
-#         Number of histogram bins.
-#     labels : tuple of str
-#         Labels to use in the legend for img1 and img2.
-#     """
-#     def to_cfh(img):
-#         # convert H×W×3 to 3×H×W if needed
-#         arr = np.asarray(img)
-#         if arr.ndim == 3 and arr.shape[0] == 3:
-#             return arr
-#         if arr.ndim == 3 and arr.shape[2] == 3:
-#             return arr.transpose(2, 0, 1)
-#         raise ValueError("Image must be shape (3,H,W) or (H,W,3)")
-    
-#     cf1 = to_cfh(img1)
-#     cf2 = to_cfh(img2)
-    
-#     colors = ('r','g','b')
-#     linestyles = ('solid','dashed')
-    
-#     fig = plt.figure(figsize=(8, 5))
-#     for i, c in enumerate(colors):
-#         data1 = cf1[i].ravel()
-#         data2 = cf2[i].ravel()
-#         h = plt.hist(data1, bins=bins, histtype='step',
-#                  color=c, linestyle=linestyles[0],
-#                  label=f'{labels[0]} {c.upper()}')
-#         plt.hist(data2, bins=bins, histtype='step',
-#                  color=c, linestyle=linestyles[1],
-#                  label=f'{labels[1]} {c.upper()}')
-    
-#     plt.xlabel('Pixel value')
-#     plt.ylabel('Frequency')
-#     plt.title('RGB Histogram Comparison')
-#     plt.legend(loc='upper right')
-#     plt.ylim(0, 500)
-#     plt.tight_layout()
-#     if path:
-#         plt.savefig(path)
-#     plt.close(fig)
+    fig = plt.figure(figsize=(20, 10))
+    H = img1.shape[1]
+    colors = ['r', 'g', 'b']
+    for i in range(3):
+        ax1 = fig.add_subplot(3, 1, i + 1)
+        ax1.plot(img1[i, H//2, :], label=labels[0], color=colors[i])
+        ax1.plot(img2[i, H//2, :], '-', label=labels[1], color=colors[i], alpha=0.5)
+        ax1.legend()
+        ax1.grid("True")
+    if path:
+        plt.savefig(path)
+    plt.close(fig)
